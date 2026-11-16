@@ -1,6 +1,8 @@
+import type { SectionStyle } from './sectionStyle';
+import type { ContentBlock } from './blocks';
 export const sectionKinds = ['portada','datos','encuentro','programa','expositores','participar','informacion','custom'] as const;
 export type SectionKind = typeof sectionKinds[number];
-export type PageSection = {id:string;kind:SectionKind;visible:boolean;navLabel:string;title:string;body:string;linkUrl:string;linkLabel:string};
+export type PageSection = {id:string;kind:SectionKind;visible:boolean;navLabel:string;title:string;body:string;linkUrl:string;linkLabel:string;blocks?:ContentBlock[];blocksPosition?:'before'|'after';appearance?:SectionStyle};
 export const builtInSections: PageSection[] = [
   ['portada','Portada'],['datos','Datos del encuentro'],['encuentro','El encuentro'],['programa','Programa'],['expositores','Expositores'],['participar','Participar'],['informacion','Información y preguntas'],
 ].map(([kind,label])=>({id:kind,kind:kind as SectionKind,visible:true,navLabel:['encuentro','programa','expositores','participar'].includes(kind)?label:'',title:label,body:'',linkUrl:'',linkLabel:''}));

@@ -3,7 +3,7 @@ import { getChatGPTUser } from '../../chatgpt-auth';
 import { contentSchema, initialContent } from '../../content';
 export const dynamic='force-dynamic';
 const json=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
-export async function GET(){try{return json(await readContent());}catch{return json({error:'No pudimos cargar el contenido. Probá nuevamente.'},503);}}
+export async function GET(){if(!await canEdit())return json({error:"Necesitás una cuenta editora."},403);try{return json(await readContent());}catch{return json({error:'No pudimos cargar el contenido. Probá nuevamente.'},503);}}
 export async function PUT(request:Request){
  if(!(await canEdit()))return json({error:'Tu cuenta no tiene permiso de edición.'},403);
  const origin=request.headers.get('origin');

@@ -1,12 +1,14 @@
 'use client';
 
+import { mathText } from './mathText';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import type { PageCopy } from './pageCopy';
 import { createPortal } from 'react-dom';
 
 const preferenceKey = 'fifa-con-theme';
 type Flight = { x: number; y: number; dx: number; dy: number; angle: number; absorbing: boolean };
 
-export default function ThemeToggle() {
+export default function ThemeToggle({copy}:{copy:PageCopy}) {
   const [light, setLight] = useState(false);
   const [busy, setBusy] = useState(false);
   const [flight, setFlight] = useState<Flight | null>(null);
@@ -58,11 +60,11 @@ export default function ThemeToggle() {
   }
 
   return <>
-    <button className="photon-toggle" ref={button} onClick={toggle} aria-disabled={busy}
-      aria-label={light ? 'Absorber un fotón: activar modo oscuro' : 'Crear un fotón: activar modo claro'}
+    <button className="photon-toggle floating-theme" ref={button} onClick={toggle} aria-disabled={busy}
+      aria-label={light ? copy.off + ': activar modo oscuro' : copy.on + ': activar modo claro'}
       title={light ? 'Volver al modo oscuro' : 'Iluminar la página'}>
       <svg width="23" height="18" viewBox="0 0 30 20" fill="none" aria-hidden="true"><path d="M1 10C4 0 7 0 10 10S16 20 19 10S25 0 28 10" stroke="currentColor" strokeWidth="1.5"/><circle cx="27" cy="10" r="2.5" fill="currentColor"/></svg>
-      {light ? 'Absorber un fotón' : 'Crear un fotón'}
+      <span className="theme-button-copy"><strong>{mathText(light ? copy.off : copy.on)}</strong><small>{light ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}</small></span>
     </button>
     <span className="sr-only" role="status">{light ? 'Modo claro activado' : 'Modo oscuro activado'}</span>
     {flight && createPortal(<div className={`photon-flight ${flight.absorbing ? 'absorbing' : ''}`} aria-hidden="true"

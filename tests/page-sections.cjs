@@ -88,3 +88,14 @@ assert(layoutHtml.includes('data-layout="columns3"'));assert(layoutHtml.includes
 const {contentSchema}=load('app/content.ts');assert(contentSchema.safeParse(layoutData).success);
 layoutData.pageSections.at(-1).visible=false;assert(!render(layoutData).includes('href="#custom-auto"'));
 console.log('PASS: automatic section navigation, social links, layout and image settings survive schema validation.');
+
+const labelData=structuredClone(initialContent);
+labelData.copy.joinLabel='RÓTULO DE PRUEBA';
+assert(render(labelData).includes('RÓTULO DE PRUEBA'));
+labelData.pageSections.find(s=>s.id==='participar').showLabel=false;
+const withoutLabel=render(labelData);
+assert(!withoutLabel.includes('RÓTULO DE PRUEBA'));
+assert(withoutLabel.includes('href="#participar"'));
+assert(withoutLabel.includes(labelData.registrationTitle));
+assert.equal(contentSchema.parse(labelData).pageSections.find(s=>s.id==='participar').showLabel,false);
+console.log('PASS: hiding section labels preserves title, navigation and saved preference.');

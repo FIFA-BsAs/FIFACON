@@ -7,7 +7,7 @@ import { blocksSchema } from './blocks';
 const text = z.string().max(5000);
 const short = z.string().max(250);
 const link = z.string().max(2000).refine(v=>{if(!v)return true;try{return new URL(v).protocol==='https:'}catch{return false}}, 'Usá una dirección que empiece con https://');
-const pageSectionSchema=z.object({id:z.string().max(60).regex(/^(portada|datos|encuentro|programa|expositores|participar|informacion|custom-[a-z0-9-]+)$/),kind:z.enum(sectionKinds),visible:z.boolean(),navLabel:z.string().max(40),title:short,body:text,linkUrl:link,linkLabel:short,blocks:blocksSchema.optional(),blocksPosition:z.enum(['before','after']).optional(),appearance:sectionStyleSchema.optional(),layout:z.enum(['original','stack','columns2','columns3']).optional(),blockGap:z.number().min(0).max(120).optional(),nativeLayout:z.enum(['original','stack','columns']).optional()});
+const pageSectionSchema=z.object({id:z.string().max(60).regex(/^(portada|datos|encuentro|programa|expositores|participar|informacion|custom-[a-z0-9-]+)$/),kind:z.enum(sectionKinds),visible:z.boolean(),showLabel:z.boolean().optional(),navLabel:z.string().max(40),title:short,body:text,linkUrl:link,linkLabel:short,blocks:blocksSchema.optional(),blocksPosition:z.enum(['before','after']).optional(),appearance:sectionStyleSchema.optional(),layout:z.enum(['original','stack','columns2','columns3']).optional(),blockGap:z.number().min(0).max(120).optional(),nativeLayout:z.enum(['original','stack','columns']).optional()});
 const frameSchema = z.object({
   brand: short.default('FIFA'),
   model: short.default('/ SCOPE 03'),

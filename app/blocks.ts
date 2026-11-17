@@ -12,7 +12,8 @@ export const blockSchema = z.object({
   imageId: z.union([z.literal(''), z.string().regex(/^[a-f0-9]{64}$/)]),
   alt: z.string().max(250), caption: z.string().max(500),
   align: z.enum(['left', 'center', 'right']),
-  width: z.enum(['full', 'half']),
+  width: z.enum(['full', 'half','third','quarter','auto']),
+  imageWidth:z.number().min(10).max(100).optional(), imageHeight:z.number().min(0).max(1200).optional(), imageFit:z.enum(['contain','cover']).optional(), imagePosition:z.number().min(0).max(100).optional(),
   tone: z.enum(['plain', 'accent']),
   newTab: z.boolean(),
 });

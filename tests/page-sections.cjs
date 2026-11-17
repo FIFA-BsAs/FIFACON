@@ -77,3 +77,14 @@ for(const kind of ['portada','datos','encuentro','programa','expositores','parti
  }
 }
 console.log('PASS: blocks stay inside each section in both positions, with shared theme-aware appearance.');
+
+const layoutData=structuredClone(initialContent);
+layoutData.instagramUrl='https://instagram.com/example';layoutData.email='contact@example.com';
+layoutData.pageSections.push({id:'custom-auto',kind:'custom',visible:true,navLabel:'',title:'Nueva sección automática',body:'',linkUrl:'',linkLabel:'',layout:'columns3',blockGap:40,blocks:[{...newBlock('image'),imageId:'a'.repeat(64),width:'third',imageWidth:60,imageHeight:240,imageFit:'cover'}]});
+const layoutHtml=render(layoutData);
+assert(layoutHtml.includes('href="#custom-auto"'));assert(layoutHtml.includes('Nueva sección automática'));
+assert(layoutHtml.includes('href="https://instagram.com/example"'));assert(layoutHtml.includes('href="mailto:contact@example.com"'));
+assert(layoutHtml.includes('data-layout="columns3"'));assert(layoutHtml.includes('--block-gap:40px'));assert(layoutHtml.includes('object-fit:cover'));assert(layoutHtml.includes('height:240px'));
+const {contentSchema}=load('app/content.ts');assert(contentSchema.safeParse(layoutData).success);
+layoutData.pageSections.at(-1).visible=false;assert(!render(layoutData).includes('href="#custom-auto"'));
+console.log('PASS: automatic section navigation, social links, layout and image settings survive schema validation.');

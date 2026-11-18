@@ -466,3 +466,21 @@ footer{flex-wrap:wrap}
 .event-coordinates{margin:24px 0}.event-coordinates p{margin:6px 0}.facts .event-time{font-size:16px;margin:8px 0 0;color:var(--muted)}
 
 .speakers{display:block;columns:3;column-gap:32px}.speakers>.speaker{display:inline-block;width:100%;break-inside:avoid;margin-bottom:32px;vertical-align:top}.speaker .talk{display:block;margin:10px 0 12px}.speaker .speaker-prose{margin-top:14px}@media(max-width:950px){.speakers{columns:2}}@media(max-width:650px){.speakers{columns:1}}
+
+/* A single, readable channel selector on narrow screens. */
+.scope-controls .scope-channels .scope-day-arrow{display:none}
+@media(max-width:650px){
+ .scope-controls .scope-channels{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;align-items:stretch}
+ .scope-controls .scope-channels button{display:none;min-width:0;min-height:60px;padding:10px;font-size:17px;white-space:normal;overflow-wrap:anywhere}
+ .scope-controls .scope-channels button[aria-pressed=true]{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:4px}
+ .scope-controls .scope-channels .scope-day-arrow{display:block;padding:6px;font-size:24px}
+ .scope-day-arrow:disabled{opacity:.4}
+ .scope-controls,.scope-display,.scope-detail,.scope-options,.scope-activity-list{min-width:0;max-width:100%;box-sizing:border-box}
+ .scope-instrument :is(h3,p,button,.scope-small,.scope-status,.scope-readout,.scope-case-label,.scope-case-foot){overflow-wrap:anywhere;white-space:normal}
+ .scope-status,.scope-readout,.scope-case-label,.scope-case-foot{flex-wrap:wrap;gap:8px}
+ .scope-status>*{min-width:0;max-width:100%}
+ .scope-controls .scope-activity-list button{min-width:0;grid-template-columns:24px minmax(0,1fr) 12px}
+ .scope-controls .scope-activity-list button>span{min-width:0}
+ .scope-pagination{display:flex;width:100%;min-width:0}
+ .scope-pagination button{min-width:0;flex:1;padding:10px 6px}
+}

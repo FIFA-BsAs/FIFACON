@@ -16,6 +16,15 @@ for(const id of ids){
  const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>2097152)throw new Error('Imagen demasiado grande');
  await writeFile(new URL('portraits/'+id+'.jpg',output),bytes);
 }
+if(record.content.flyerFile){
+ const {id,ext}=record.content.flyerFile;
+ if(!/^[a-f0-9]{64}$/.test(id)||!['pdf','jpg','png','webp'].includes(ext))throw new Error('Flyer inválido');
+ const response=await fetch(origin+'/api/flyers?file='+id+'.'+ext,{redirect:'error'});
+ if(!response.ok)throw new Error('No se pudo descargar el flyer');
+ const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length>10485760)throw new Error('Flyer demasiado grande');
+ await mkdir(new URL('flyers/',output),{recursive:true});
+ await writeFile(new URL('flyers/'+id+'.'+ext,output),bytes);
+}
 await writeFile(new URL('content.json',output),JSON.stringify(record));
 await copyFile(new URL('../public/favicon.svg',import.meta.url),new URL('favicon.svg',output));
 await writeFile(new URL('.nojekyll',output),'');

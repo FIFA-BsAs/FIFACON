@@ -99,3 +99,13 @@ assert(withoutLabel.includes('href="#participar"'));
 assert(withoutLabel.includes(labelData.registrationTitle));
 assert.equal(contentSchema.parse(labelData).pageSections.find(s=>s.id==='participar').showLabel,false);
 console.log('PASS: hiding section labels preserves title, navigation and saved preference.');
+
+const eventData=structuredClone(initialContent);
+assert(render(eventData).includes('Horario a definir'));
+eventData.date='10 y 11 de diciembre';eventData.eventTime='De 9 a 18 h';eventData.flyerUrl='https://example.com/flyer.pdf';
+const eventHtml=render(eventData);
+assert(eventHtml.includes('De 9 a 18 h'));assert(eventHtml.includes('10 y 11 de diciembre'));
+assert(eventHtml.includes('href="https://example.com/flyer.pdf"'));
+assert.equal(contentSchema.parse(eventData).eventTime,'De 9 a 18 h');
+eventData.flyerUrl='javascript:alert(1)';assert(!contentSchema.safeParse(eventData).success);
+console.log('PASS: editable event dates/time and flyer URL, legacy fallback and URL validation.');

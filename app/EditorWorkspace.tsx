@@ -10,7 +10,7 @@ import TypographyEditor from './TypographyEditor';
 import BlockEditor from './BlockEditor';
 import { SpeakerPortrait, type Speaker } from './SpeakerPortrait';
 
-type Props={data:Content;initialSelection:string;disabled:boolean;update:(fn:(next:Content)=>void)=>void;uploadSpeaker:(index:number,file:File)=>void;uploadBlock:(sectionId:string,blockId:string,file:File)=>void};
+type Props={uploadFlyer?:(file:File)=>void;data:Content;initialSelection:string;disabled:boolean;update:(fn:(next:Content)=>void)=>void;uploadSpeaker:(index:number,file:File)=>void;uploadBlock:(sectionId:string,blockId:string,file:File)=>void};
 function Input({label,value,onChange,multiline=false,max=250,type='text'}:{label:string;value:string;onChange:(v:string)=>void;multiline?:boolean;max?:number;type?:string}){
  return <label className="field"><span>{label}</span>{multiline?<textarea rows={4} maxLength={max} value={value} onChange={e=>onChange(e.target.value)}/>:<input type={type} maxLength={max} value={value} onChange={e=>onChange(e.target.value)}/>}</label>;
 }
@@ -19,7 +19,7 @@ function DeleteAction({label,onDelete}:{label:string;onDelete:()=>void}){
  const [confirm,setConfirm]=useState(false);
  return confirm?<div className="section-delete-confirm"><p>¿Eliminar {label}?</p><button type="button" onClick={()=>setConfirm(false)}>Cancelar</button><button type="button" onClick={()=>{onDelete();setConfirm(false)}}>Sí, eliminar</button></div>:<button type="button" className="editor-delete" onClick={()=>setConfirm(true)}>Eliminar {label}</button>;
 }
-export default function EditorWorkspace({data,initialSelection,disabled,update,uploadSpeaker,uploadBlock}:Props){
+export default function EditorWorkspace({data,initialSelection,disabled,update,uploadSpeaker,uploadBlock,uploadFlyer}:Props){
  const [selection,setSelection]=useState(initialSelection),[showTree,setShowTree]=useState(false);
  const [removed,setRemoved]=useState<{section:PageSection;index:number}|null>(null);
  const contentRef=useRef<HTMLDivElement>(null),headingRef=useRef<HTMLHeadingElement>(null);
@@ -39,7 +39,7 @@ export default function EditorWorkspace({data,initialSelection,disabled,update,u
  const speakerChange=(patch:Partial<Speaker>)=>update(next=>Object.assign(next.speakers[itemIndex],patch));
  let body:ReactNode=null;
  if(id==='page'||id==='general'||id===prefix)body=cards(current.children||[]);
- if(id==='general/identity')body=<>{field('name','Nombre del congreso')}{field('tagline','Lema')}{field('date','Fecha del encuentro')}{field('eventTime','Horario del encuentro')}{field('flyerUrl','Enlace al flyer (imagen o PDF, https://)',false,'url')}<p className="field-hint">Pegá el enlace público del flyer nuevo. Vacío: conserva el flyer original.</p>{field('venue','Sede')}{field('address','Dirección')}{field('modality','Modalidad')}{field('instagramUrl','Instagram (https://)',false,'url')}{field('email','Correo del encabezado',false,'email')}<p className="field-hint">Estos datos se comparten entre portada, encabezado, pie e información del encuentro.</p></>;
+ if(id==='general/identity')body=<>{field('name','Nombre del congreso')}{field('tagline','Lema')}{field('date','Fecha del encuentro')}{field('eventTime','Horario del encuentro')}<label className="field"><span>{data.flyerFile?'Reemplazar flyer':'Subir flyer'}</span><input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)uploadFlyer?.(file)}}/></label><p className="field-hint">PDF, JPG, PNG o WebP, hasta 10 MB. Guardá los cambios después de subirlo.</p>{data.flyerFile&&<div><a href={`/api/flyers?file=${data.flyerFile.id}.${data.flyerFile.ext}`} target="_blank" rel="noopener noreferrer">Ver flyer cargado ↗</a><button type="button" onClick={()=>set('flyerFile',undefined)}>Quitar archivo y usar enlace</button></div>}{field('flyerUrl','Enlace al flyer (imagen o PDF, https://)',false,'url')}<p className="field-hint">Pegá el enlace público del flyer nuevo. Se usa si no hay un archivo cargado. Vacío: conserva el flyer original.</p>{field('venue','Sede')}{field('address','Dirección')}{field('modality','Modalidad')}{field('instagramUrl','Instagram (https://)',false,'url')}{field('email','Correo del encabezado',false,'email')}<p className="field-hint">Estos datos se comparten entre portada, encabezado, pie e información del encuentro.</p></>;
  if(id==='general/typography')body=<TypographyEditor value={data.typography} onChange={value=>set('typography',value)}/>;
  if(id==='general/appearance')body=<><Check label="Activar partículas suaves" value={data.particlesEnabled} onChange={value=>set('particlesEnabled',value)}/>{copyFieldsEditor(appearanceCopy)}</>;
  if(id==='general/copy')body=copyFieldsEditor(sharedCopy);

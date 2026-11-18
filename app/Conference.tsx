@@ -35,6 +35,14 @@ export default function Conference({initial,initialVersion,canEdit,staticMode=fa
    catch(e){setError(e instanceof Error?e.message:'No se pudo subir la imagen.');}
    finally{setUploading(false);}
  }
+ async function chooseFlyer(file:File){
+  setUploading(true);setError('');try{
+   if(file.size>10*1024*1024)throw new Error('Elegí un flyer de hasta 10 MB.');
+   const response=await fetch('/api/flyers',{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream'},body:file});
+   const result=await response.json() as {error?:string;id:string;ext:'pdf'|'jpg'|'png'|'webp'};if(!response.ok)throw new Error(result.error||'No pudimos subir el flyer.');
+   update(next=>{next.flyerFile={id:result.id,ext:result.ext};});
+  }catch(e){setError(e instanceof Error?e.message:'No pudimos subir el flyer.');}finally{setUploading(false);}
+ }
  const dirty=JSON.stringify(data)!==JSON.stringify(saved);
  useEffect(()=>{if(!dirty)return;const fn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',fn);return()=>window.removeEventListener('beforeunload',fn)},[dirty]);
  useEffect(()=>{if(!panel)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';triggerRef.current=document.activeElement as HTMLElement;panelRef.current?.querySelector<HTMLButtonElement>('button')?.focus();const fn=(e:KeyboardEvent)=>{if(e.key==='Escape')setPanel(null);if(e.key==='Tab'){const els=Array.from(panelRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href],summary')||[]).filter(el=>el.getClientRects().length>0);if(e.shiftKey&&document.activeElement===els[0]){e.preventDefault();els.at(-1)?.focus()}else if(!e.shiftKey&&document.activeElement===els.at(-1)){e.preventDefault();els[0]?.focus()}}};document.addEventListener('keydown',fn);return()=>{document.body.style.overflow=previousOverflow;document.removeEventListener('keydown',fn);triggerRef.current?.focus()}},[panel]);
@@ -60,8 +68,8 @@ export default function Conference({initial,initialVersion,canEdit,staticMode=fa
       {s.photo ? <SpeakerPortrait speaker={s}/> : <><span className="speaker-index mono">{String(i+1).padStart(2,'0')} / {mathText(copy.speakerMark)}</span><div className="orbit"/><span className="speaker-symbol" aria-hidden="true">{['✦','◌','✳'][i%3]}</span></>}
     </div>
     {s.photo&&s.caption&&<small className="speaker-caption">{mathText(s.caption)}</small>}
-    <h3>{mathText(s.name)}</h3><p>{mathText(s.affiliation)}</p>
-    {s.bio&&<p className="speaker-prose">{mathText(s.bio)}</p>}<span className="talk">{mathText(s.talk)}</span>
+    <h3>{mathText(s.name)}</h3><span className="talk">{mathText(s.talk)}</span><p>{mathText(s.affiliation)}</p>
+    {s.bio&&<p className="speaker-prose">{mathText(s.bio)}</p>}
     {s.abstract&&<p className="speaker-prose">{mathText(s.abstract)}</p>}
     </article>)}</div></section>),
   participar:(<section className="participation" id="participar"><div className="shell participation-inner"><div>{data.pageSections.find(s=>s.id==='participar')?.showLabel!==false&&<p className="eyebrow">{sectionNumber('participar')} / {mathText(copy.joinLabel)}</p>}<h2>{mathText(data.registrationTitle)}</h2><Edit section="participar"/></div><div><p>{mathText(data.registrationText)}</p>{data.registrationUrl?<a className="button pale" target="_blank" rel="noopener noreferrer" href={data.registrationUrl}>{mathText(data.registrationLabel)} ↗</a>:<span className="pending"><i/> {mathText(copy.pending)}</span>}</div></div></section>),
@@ -86,8 +94,8 @@ export default function Conference({initial,initialVersion,canEdit,staticMode=fa
    })}
    {visible.length===0&&editing&&<div className="shell section"><p>No hay secciones visibles.</p><button className="section-edit" onClick={()=>setPanel('sections')}>Gestionar secciones</button></div>}
   </main>
-  <footer className="shell"><a className="brand" href="#page-top">{mathText(data.name)}<span> {mathText(copy.suffix)}</span></a><p>{mathText(data.tagline)}</p><a href="#page-top">{mathText(copy.back)}</a><a href={data.flyerUrl||'https://fifacon.electatoll.chatgpt.site/fifa-con-flyer.png'} target="_blank" rel="noopener noreferrer">{mathText(copy.flyer)}</a><ParticleField copy={copy} enabled={data.particlesEnabled}/></footer>
-  {panel&&editing&&<><div className="panel-shade" onClick={()=>setPanel(null)}/><aside className="editor-panel hierarchical-editor" role="dialog" aria-modal="true" aria-labelledby="editor-title" ref={panelRef}><div className="panel-head"><div><span className="eyebrow">FIFA CON / EDITOR</span><h2 id="editor-title">Editor de la página</h2></div><button aria-label="Cerrar editor" onClick={()=>setPanel(null)}>×</button></div><EditorWorkspace data={data} initialSelection={panel} disabled={busy||uploading} update={update} uploadSpeaker={(index,file)=>void choosePhoto(index,file)} uploadBlock={(sectionId,blockId,file)=>void chooseBlockPhoto(sectionId,blockId,file)}/>
+  <footer className="shell"><a className="brand" href="#page-top">{mathText(data.name)}<span> {mathText(copy.suffix)}</span></a><p>{mathText(data.tagline)}</p><a href="#page-top">{mathText(copy.back)}</a><a href={data.flyerFile?(staticMode?`./flyers/${data.flyerFile.id}.${data.flyerFile.ext}`:`/api/flyers?file=${data.flyerFile.id}.${data.flyerFile.ext}`):data.flyerUrl||'https://fifacon.electatoll.chatgpt.site/fifa-con-flyer.png'} target="_blank" rel="noopener noreferrer">{mathText(copy.flyer)}</a><ParticleField copy={copy} enabled={data.particlesEnabled}/></footer>
+  {panel&&editing&&<><div className="panel-shade" onClick={()=>setPanel(null)}/><aside className="editor-panel hierarchical-editor" role="dialog" aria-modal="true" aria-labelledby="editor-title" ref={panelRef}><div className="panel-head"><div><span className="eyebrow">FIFA CON / EDITOR</span><h2 id="editor-title">Editor de la página</h2></div><button aria-label="Cerrar editor" onClick={()=>setPanel(null)}>×</button></div><EditorWorkspace data={data} initialSelection={panel} disabled={busy||uploading} update={update} uploadFlyer={file=>void chooseFlyer(file)} uploadSpeaker={(index,file)=>void choosePhoto(index,file)} uploadBlock={(sectionId,blockId,file)=>void chooseBlockPhoto(sectionId,blockId,file)}/>
   <div className="panel-footer">{uploading&&<span role="status">Subiendo imagen…</span>}{error&&<p role="alert" className="panel-error">{error}</p>}<span>{dirty?'Cambios sin guardar':'Todo guardado'}</span><button onClick={()=>setPanel(null)}>Ver página</button><button className="save" disabled={busy||uploading||!dirty} onClick={save}>{busy?'Guardando…':'Guardar cambios'}</button></div></aside></>}
  </div>
 }

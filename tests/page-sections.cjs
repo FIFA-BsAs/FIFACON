@@ -109,3 +109,8 @@ assert(eventHtml.includes('href="https://example.com/flyer.pdf"'));
 assert.equal(contentSchema.parse(eventData).eventTime,'De 9 a 18 h');
 eventData.flyerUrl='javascript:alert(1)';assert(!contentSchema.safeParse(eventData).success);
 console.log('PASS: editable event dates/time and flyer URL, legacy fallback and URL validation.');
+const flyerData=structuredClone(initialContent);flyerData.flyerFile={id:'b'.repeat(64),ext:'pdf'};
+const flyerHtml=render(flyerData);assert(flyerHtml.includes(`/api/flyers?file=${'b'.repeat(64)}.pdf`));
+const staticFlyer=renderToStaticMarkup(React.createElement(Conference,{initial:flyerData,initialVersion:0,canEdit:false,staticMode:true}));assert(staticFlyer.includes(`./flyers/${'b'.repeat(64)}.pdf`));
+flyerData.speakers=[{name:'Unique Speaker',talk:'Unique Talk',affiliation:'Unique Institute',bio:'Unique Biography'}];const ordered=render(flyerData);assert(ordered.indexOf('Unique Speaker')<ordered.indexOf('Unique Talk'));assert(ordered.indexOf('Unique Talk')<ordered.indexOf('Unique Biography'));
+console.log('PASS: uploaded flyer links for editor and Pages; talk precedes biography.');

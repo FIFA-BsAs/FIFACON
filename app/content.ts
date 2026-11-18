@@ -27,7 +27,7 @@ const storedContentSchema = z.object({
   particlesEnabled:z.boolean().default(true),
   pageSections:z.array(pageSectionSchema).max(25).superRefine((sections,ctx)=>{const ids=new Set<string>();for(const section of sections){if(ids.has(section.id)||(section.kind==='custom'?!section.id.startsWith('custom-'):section.id!==section.kind)){ctx.addIssue({code:z.ZodIssueCode.custom,message:'Secciones duplicadas o inválidas'});}ids.add(section.id);}}).default(builtInSections),
   typography: z.object({headings:z.enum(fontIds).default('original'),body:z.enum(fontIds).default('original'),labels:z.enum(fontIds).default('original')}).default(defaultTypography),
-  name:short.min(1), edition:short, tagline:short, headline:text, date:short, venue:short, address:short, modality:short,
+  name:short.min(1), edition:short, tagline:short, headline:text, date:short, eventTime:short.optional(), flyerUrl:link.optional(), venue:short, address:short, modality:short,
   aboutTitle:short, about:text, activities:short, registrationTitle:short, registrationText:text, registrationLabel:short,
   instagramUrl:link.optional(), registrationUrl:link, email:z.union([z.literal(''),z.string().email().max(250)]), mapUrl:link,
   agendaTitle:short.default('Ideas en movimiento.'), agendaNote:short, speakersNote:short,

@@ -485,4 +485,4 @@ footer{flex-wrap:wrap}
  .scope-pagination button{min-width:0;flex:1;padding:10px 6px}
 }
 
-@media(max-width:650px){.scope-main-panel{display:contents}.scope-console{display:flex;flex-direction:column}.scope-display{order:0}.scope-controls{order:1}.scope-main-panel .scope-detail{order:2}.scope-main-panel .scope-bottom{order:3}}
+@media(max-width:650px){.scope-main-panel{display:contents}.scope-console{display:flex;flex-direction:column}.scope-display{order:0}.scope-controls{order:1;align-self:stretch;width:100%}.scope-main-panel .scope-detail{order:2}.scope-main-panel .scope-bottom{order:3}}
